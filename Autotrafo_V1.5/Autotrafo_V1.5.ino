@@ -204,21 +204,21 @@ unsigned long currentMillis = millis();   // Retardo NO bloqueante
    }  
 
 //-------Función 1--------//       
-unsigned long currentMillis = millis();   
+   currentMillis = millis();   
    if(currentMillis - previousMillis_1 >= interval_1) {
     previousMillis_1 = currentMillis;
     leerTension();
    }  
    
 //-------Función 2--------//   
-unsigned long currentMillis = millis();   
+    currentMillis = millis();   
    if(currentMillis - previousMillis_2 >= interval_2) {
     previousMillis_2 = currentMillis;
     ajuste();
    }    
    
 //-------Función 3--------//    
- unsigned long currentMillis = millis();  
+ currentMillis = millis();  
    if(currentMillis - previousMillis_3 >= interval_3) {
     previousMillis_3 = currentMillis;
     mostrarPatallaA();
@@ -228,21 +228,21 @@ unsigned long currentMillis = millis();
   else{
 
 //-------Función 4--------//    
- unsigned long currentMillis = millis();  
+unsigned long currentMillis = millis();  
    if(currentMillis - previousMillis_4 >= interval_4) {
     previousMillis_4 = currentMillis;
     controlManual();
    } 
 
 //-------Función 5--------//    
- unsigned long currentMillis = millis();  
+   currentMillis = millis();  
    if(currentMillis - previousMillis_5 >= interval_5) {
     previousMillis_5 = currentMillis;
     leerTension();
    } 
 
  //-------Función 6--------//    
- unsigned long currentMillis = millis();  
+   currentMillis = millis();  
    if(currentMillis - previousMillis_6 >= interval_6) {
     previousMillis_6 = currentMillis;
     mostrarPatallaM();
