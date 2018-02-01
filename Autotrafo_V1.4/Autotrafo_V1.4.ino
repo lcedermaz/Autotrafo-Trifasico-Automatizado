@@ -24,7 +24,7 @@ EnergyMonitor emon3;             // Create an instance 3
 
   float setPointFase1, setPointFase2, setPointFase3, Fase1, Fase2, Fase3;
   
-  int lectura1, lectura2, lectura3, i;
+  int lectura1, lectura2, lectura3;
 
 
   
@@ -44,7 +44,18 @@ EnergyMonitor emon3;             // Create an instance 3
 
   int direccion3 = 31;
   int enable3 = 32;
-
+  
+  //--------------Finales de Carrera------
+  
+  int Fcs_1=33;
+  int Fci_1=34;
+  
+  int Fcs_2=35;
+  int Fci_2=36;
+  
+  int Fcs_3=37;
+  int Fci_3=38;
+  
   //----Configuraciones del encoder----
   
   const int channelPinA = 2;
@@ -110,11 +121,24 @@ void setup() {
 
   pinMode(enable3, OUTPUT);
   pinMode(direccion3, OUTPUT);
+  
+//----------------
 
+  pinMode (Fcs_1, INPUT);
+  pinMode (Fci_1,INPUT);
+  
+  pinMode (Fcs_2,INPUT);
+  pinMode (Fci_2,INPUT);;
+  
+  pinMode (Fcs_3,INPUT);
+  pinMode (Fci_3,INPUT);
 
-  digitalWrite(enable1, LOW); // PRUEBA TB 6560
-  digitalWrite(enable2, LOW);
-  digitalWrite(enable3, LOW);
+//----------------
+
+  digitalWrite(enable1, HIGH); // PRUEBA TB 6560
+  digitalWrite(enable2, HIGH);
+  digitalWrite(enable3, HIGH);
+
 
   //-----------------------------------
 
@@ -206,9 +230,9 @@ void leerTension(){
 
   }
   
-  Fase1 = (tenvals1/10) + ((240-(tenvals/10))*0.015); // Se le aplico una formula de correcion para un error de 3 volt en 40Vca
-  Fase2 = (tenvals2/10) + ((240-(tenvals/10))*0.015); // Se le aplico una formula de correcion para un error de 3 volt en 40Vca
-  Fase3 = (tenvals3/10) + ((240-(tenvals/10))*0.015); // Se le aplico una formula de correcion para un error de 3 volt en 40Vca
+  Fase1 = (tenvals1/10) + ((240-(tenvals1/10))*0.015); // Se le aplico una formula de correcion para un error de 3 volt en 40Vca
+  Fase2 = (tenvals2/10) + ((240-(tenvals2/10))*0.015); // Se le aplico una formula de correcion para un error de 3 volt en 40Vca
+  Fase3 = (tenvals3/10) + ((240-(tenvals3/10))*0.015); // Se le aplico una formula de correcion para un error de 3 volt en 40Vca
  
   
 }
@@ -221,21 +245,21 @@ void ajuste(){
   LimSup1 = setPointFase1*1.01 ; // Limite Superior de seteo
   LimInf1 = setPointFase1*0.99 ; // Limite Inferior de seteo
  
-  if( Fase1 < LimInf1 || Fase1 > LimSup1  ){ 
-    if( Fase1 < LimInf1 && Fase1 < 250 ){
-      digitalWrite(enable1, HIGH); // Se cambio el estado según configuración del tb6560
-      digitalWrite(direccion1, HIGH);
-      for(i=0; i<30; i++){
+  if( Fase1 < LimInf1 || Fase1 > LimSup1 ){ 
+    if( Fase1 < LimInf1 && Fase1 < 250 && digitalRead(Fcs_1)){
+      digitalWrite(enable1, LOW); // Se cambio el estado según configuración del tb6560
+      digitalWrite(direccion1, LOW);
+      for(i=0; i<10; i++){
         digitalWrite(pasos, HIGH);
         delay(10);
         digitalWrite(pasos, LOW);
         delay(10);
       }
     }
-    if( Fase1 > LimSup1 && Fase1 > 0.0 ){  
-      digitalWrite(enable1, HIGH);
-      digitalWrite(direccion1, LOW);
-      for(i=0; i<30; i++){
+    if( Fase1 > LimSup1 && Fase1 > 0.0 && digitalRead(Fci_1)){  
+      digitalWrite(enable1, LOW);
+      digitalWrite(direccion1, HIGH);
+      for(i=0; i<10; i++){
         digitalWrite(pasos, HIGH);
         delay(10);
         digitalWrite(pasos, LOW);
@@ -243,7 +267,7 @@ void ajuste(){
       }
     }
 
-    digitalWrite(enable1, LOW);
+    digitalWrite(enable1, HIGH);
     
   }
 
@@ -256,20 +280,20 @@ void ajuste(){
   LimInf2 = setPointFase2*0.99 ; // Limite Inferior de seteo
  
   if( Fase2 < LimInf2 || Fase2 > LimSup2  ){ 
-    if( Fase2 < LimInf2 && Fase2 < 250 ){
-      digitalWrite(enable2, HIGH);
-      digitalWrite(direccion2, HIGH);
-      for(i=0; i<30; i++){
+    if( Fase2 < LimInf2 && Fase2 < 250 && digitalRead(Fcs_2) ){
+      digitalWrite(enable2, LOW);
+      digitalWrite(direccion2, LOW);
+      for(i=0; i<10; i++){
         digitalWrite(pasos, HIGH);
         delay(10);
         digitalWrite(pasos, LOW);
         delay(10);
       }
     }
-    if( Fase2 > LimSup2 && Fase2 > 0.0 ){  
-      digitalWrite(enable2, HIGH);
-      digitalWrite(direccion2, LOW);
-      for(i=0; i<30; i++){
+    if( Fase2 > LimSup2 && Fase2 > 0.0 && digitalRead(Fci_2) ){  
+      digitalWrite(enable2, LOW);
+      digitalWrite(direccion2, HIGH);
+      for(i=0; i<10; i++){
         digitalWrite(pasos, HIGH);
         delay(10);
         digitalWrite(pasos, LOW);
@@ -277,7 +301,7 @@ void ajuste(){
       }
     }
 
-    digitalWrite(enable2, LOW);
+    digitalWrite(enable2, HIGH);
     
   }
 
@@ -290,20 +314,20 @@ void ajuste(){
   LimInf3 = setPointFase3*0.99 ; // Limite Inferior de seteo
  
   if( Fase3 < LimInf3 || Fase3 > LimSup3  ){ 
-    if( Fase3 < LimInf3 && Fase3 < 250 ){
-      digitalWrite(enable3, HIGH);
-      digitalWrite(direccion3, HIGH);
-      for(i=0; i<30; i++){
+    if( Fase3 < LimInf3 && Fase3 < 250 && digitalRead(Fcs_3) ){
+      digitalWrite(enable3, LOW);
+      digitalWrite(direccion3, LOW);
+      for(i=0; i<10; i++){
         digitalWrite(pasos, HIGH);
         delay(10);
         digitalWrite(pasos, LOW);
         delay(10);
       }
     }
-    if( Fase3 > LimSup3 && Fase3 > 0.0 ){  
-      digitalWrite(enable3, HIGH);
-      digitalWrite(direccion3, LOW);
-      for(i=0; i<30; i++){
+    if( Fase3 > LimSup3 && Fase3 > 0.0 && digitalRead(Fci_3) ){  
+      digitalWrite(enable3, LOW);
+      digitalWrite(direccion3, HIGH);
+      for(i=0; i<10; i++){
         digitalWrite(pasos, HIGH);
         delay(10);
         digitalWrite(pasos, LOW);
@@ -311,7 +335,7 @@ void ajuste(){
       }
     }
 
-    digitalWrite(enable3, LOW);
+    digitalWrite(enable3, HIGH);
     
   }
 
@@ -334,10 +358,10 @@ void controlManual(){
 
       //-------control fase 1 sentido horario--------
 
-      if(digitalRead(switchFase1)){
+      if(digitalRead(switchFase1)&& digitalRead(Fcs_1)){
 
-        digitalWrite(enable1, HIGH);
-        digitalWrite(direccion1, HIGH);
+        digitalWrite(enable1, LOW);
+        digitalWrite(direccion1, LOW);
 
        for(i=0; i<30; i++){
         digitalWrite(pasos, HIGH);
@@ -352,10 +376,10 @@ void controlManual(){
 
       //-------control fase 2 sentido horario--------
 
-      if(digitalRead(switchFase2)){
+      if(digitalRead(switchFase2)&& digitalRead(Fcs_2)){
 
-        digitalWrite(enable2, HIGH);
-        digitalWrite(direccion2, HIGH);
+        digitalWrite(enable2, LOW);
+        digitalWrite(direccion2, LOW);
 
        for(i=0; i<30; i++){
         digitalWrite(pasos, HIGH);
@@ -370,10 +394,10 @@ void controlManual(){
 
       //-------control fase 3 sentido horario--------
 
-      if(digitalRead(switchFase3)){
+      if(digitalRead(switchFase3)&& digitalRead(Fcs_3)){
 
-        digitalWrite(enable3, HIGH);
-        digitalWrite(direccion3, HIGH);
+        digitalWrite(enable3, LOW);
+        digitalWrite(direccion3, LOW);
 
        for(i=0; i<30; i++){
         digitalWrite(pasos, HIGH);
@@ -393,10 +417,10 @@ void controlManual(){
 
       //-----control fase 1 sentido antihorario------
 
-      if(digitalRead(switchFase1)){
+       if(digitalRead(switchFase1)&& digitalRead(Fci_1)){
 
-        digitalWrite(enable1, HIGH);
-        digitalWrite(direccion1, LOW);
+        digitalWrite(enable1, LOW);
+        digitalWrite(direccion1, HIGH);
 
        for(i=0; i<30; i++){
         digitalWrite(pasos, HIGH);
@@ -411,10 +435,10 @@ void controlManual(){
 
       //-----control fase 2 sentido antihorario------
 
-      if(digitalRead(switchFase2)){
+      if(digitalRead(switchFase2)&& digitalRead(Fci_2)){
 
-        digitalWrite(enable2, HIGH);
-        digitalWrite(direccion2, LOW);
+        digitalWrite(enable2, LOW);
+        digitalWrite(direccion2, HIGH);
 
        for(i=0; i<30; i++){
         digitalWrite(pasos, HIGH);
@@ -429,10 +453,10 @@ void controlManual(){
 
       //-----control fase 3 sentido antihorario------
 
-      if(digitalRead(switchFase3)){
+      if(digitalRead(switchFase3)&& digitalRead(Fci_3)){
 
-        digitalWrite(enable3, HIGH);
-        digitalWrite(direccion3, LOW);
+        digitalWrite(enable3, LOW);
+        digitalWrite(direccion3, HIGH);
 
        for(i=0; i<30; i++){
         digitalWrite(pasos, HIGH);
@@ -447,9 +471,9 @@ void controlManual(){
       
     }
 
-    digitalWrite(enable1, LOW);
-    digitalWrite(enable2, LOW);
-    digitalWrite(enable3, LOW);
+    digitalWrite(enable1, HIGH);
+    digitalWrite(enable2, HIGH);
+    digitalWrite(enable3, HIGH);
     
   }
 
