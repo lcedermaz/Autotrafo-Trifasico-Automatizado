@@ -178,16 +178,20 @@ void leerTension(){
 
 
 void controlManual(){
-  
+
+    digitalWrite(enable1, HIGH);  // Todos los drivers desactivados
+    digitalWrite(enable2, HIGH);
+    digitalWrite(enable3, HIGH);  
 
   //-------------------------------------------------------------
   //---------------PULSADORES - ARRIBA --------------------------
   //-------------------------------------------------------------
   
+      if(digitalRead(P_Arriba)){
+        
       //-------control fase 1 sentido horario--------
-
-      if(digitalRead(switchFase1)&& digitalRead(Fcs_1)&& digitalRead(P_Arriba)){
-
+              
+      if(digitalRead(switchFase1)&& digitalRead(Fcs_1)){
         digitalWrite(enable1, LOW); //Activa Driver
         digitalWrite(direccion1, LOW); // Configurar dirección      
       }
@@ -210,16 +214,18 @@ void controlManual(){
 
         digitalWrite(enable3, LOW);
         digitalWrite(direccion3, LOW);        
+                }
+        delay(1);
       }
-
   //-------------------------------------------------------------
   //---------------PULSADORES - ABAJO  --------------------------
   //-------------------------------------------------------------
   
-
+      if(digitalRead(P_Abajo)){
+      
       //-----control fase 1 sentido antihorario------
 
-       if(digitalRead(switchFase1)&& digitalRead(Fci_1)&& digitalRead(P_Abajo)){
+       if(digitalRead(switchFase1)&& digitalRead(Fci_1)){
 
         digitalWrite(enable1, LOW);
         digitalWrite(direccion1, HIGH);
@@ -244,14 +250,10 @@ void controlManual(){
 
         digitalWrite(enable3, LOW);
         digitalWrite(direccion3, HIGH);        
-      }
-
-
-    digitalWrite(enable1, HIGH);
-    digitalWrite(enable2, HIGH);
-    digitalWrite(enable3, HIGH);
+                }
+      delay(1);
+        }
 }
-
 
 
 void mostrarPatallaM(){
