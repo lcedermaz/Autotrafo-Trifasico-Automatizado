@@ -67,8 +67,11 @@ EnergyMonitor emon3;             // Create an instance 3
   const int maxSteps = 1024;
   volatile int ISRCounter = 0;
   volatile int ISRCounterM = 0;
-  int counter = 0;
+  int counter1 = 800;
+  int counter2 = 800;
+  int counter3 = 800;
   int ISRCounterMPrev;
+  int ISRCounterPrev;
    
   volatile int IsCW = 1;
 
@@ -81,52 +84,10 @@ EnergyMonitor emon3;             // Create an instance 3
   void cotrolManual();
   void mostrarPatallaA();
   void mostrarPatallaM();
+  
 
-//----------[TIEMPOS ASIGNADOS A CADAFUNCIÓN - NO BLOQUEANTE]----------//  
-
-//------------------------------setPoint()--Funcion 0
-
-unsigned long previousMillis = 0;        
-const long interval = 50 ; // Valor dado en milisegundos  
-
-//------------------------------leerTension()--Funcion 1
-
-unsigned long previousMillis_1 = 0;        
-const long interval_1 = 1000 ;  
-
-//------------------------------ajuste()--Funcion 2
-
-unsigned long previousMillis_2 = 0;        
-const long interval_2 = 1000 ;  
-
-//------------------------------mostrarPatallaA() --Funcion 3
-
-unsigned long previousMillis_3 = 0;        
-const long interval_3 = 500 ;  
-
-//------------------------------controlManual()--Funcion 4
-
-unsigned long previousMillis_4 = 0;        
-const long interval_4 = 50 ;  
-
-//------------------------------leerTension()--Funcion 5
-
-unsigned long previousMillis_5 = 0;        
-const long interval_5 = 50 ;  
-
-//------------------------------mostrarPatallaM()--Funcion 6 
-
-unsigned long previousMillis_6 = 0;        
-const long interval_6 = 500 ;  
-
-    
-
-//---------Función Principal
   
 void setup() {
-  
-  Serial.begin(9600);
-  
    //-------------Configuracion LCD-------------
 
   lcd.init(); 
@@ -147,11 +108,11 @@ void setup() {
 
   //----Configuracion Entradas/Salidas------
   
-  pinMode(switchFase1, INPUT);
-  pinMode(switchFase2, INPUT);
-  pinMode(switchFase3, INPUT);
+  pinMode(switchFase1, INPUT_PULLUP);
+  pinMode(switchFase2, INPUT_PULLUP);
+  pinMode(switchFase3, INPUT_PULLUP);
 
-  pinMode(switchManAut, INPUT);
+  pinMode(switchManAut, INPUT_PULLUP);
   
   pinMode(pasos, OUTPUT);
   
@@ -187,6 +148,7 @@ void setup() {
   //----Configuraciones del encoder----
 
    pinMode(channelPinA, INPUT_PULLUP);
+   Serial.begin(9600);
    attachInterrupt(digitalPinToInterrupt(channelPinA), doEncodeA, CHANGE);
    attachInterrupt(digitalPinToInterrupt(channelPinB), doEncodeB, CHANGE);
 
@@ -197,61 +159,26 @@ void setup() {
 void loop() {
 
   if(digitalRead(switchManAut)){
-
-//-------Función 0--------//    
-unsigned long currentMillis = millis();   // Retardo NO bloqueante 
-   if(currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
+    
     setPoint();
-   }  
-    Serial.print(millis());
-//-------Función 1--------//       
-   currentMillis = millis();   
-   if(currentMillis - previousMillis_1 >= interval_1) {
-    previousMillis_1 = currentMillis;
+
     leerTension();
-   }  
-   
-   Serial.print(millis());
-   
-//-------Función 2--------//   
-   currentMillis = millis();   
-   if(currentMillis - previousMillis_2 >= interval_2) {
-    previousMillis_2 = currentMillis;
+ 
     ajuste();
-   }    
-   
-//-------Función 3--------//    
- currentMillis = millis();  
-   if(currentMillis - previousMillis_3 >= interval_3) {
-    previousMillis_3 = currentMillis;
+
     mostrarPatallaA();
-   }          
+    
   }
 
   else{
 
-//-------Función 4--------//    
-unsigned long currentMillis = millis();  
-   if(currentMillis - previousMillis_4 >= interval_4) {
-    previousMillis_4 = currentMillis;
     controlManual();
-   } 
 
-//-------Función 5--------//    
-   currentMillis = millis();  
-   if(currentMillis - previousMillis_5 >= interval_5) {
-    previousMillis_5 = currentMillis;
     leerTension();
-   } 
 
- //-------Función 6--------//    
-   currentMillis = millis();  
-   if(currentMillis - previousMillis_6 >= interval_6) {
-    previousMillis_6 = currentMillis;
     mostrarPatallaM();
-          } 
-    }
+    
+  }
 
 }
 
@@ -261,27 +188,49 @@ void setPoint(){
 
   //----Codigo para leer el encoder------------------------------
 
-  if (counter != ISRCounter)
-   {
-      counter = ISRCounter;
-      Serial.println(counter);
+  if (ISRCounter > ISRCounterPrev){
+    
+     if(!digitalRead(switchFase1) && counter1 < 1024){
+       counter1= counter1+4;
+       setPointFase1 = counter1 * 250.0 / 1024.0;
+      }
+      
+      if(!digitalRead(switchFase2) && counter2 < 1024){
+       counter2= counter2+4;
+       setPointFase2 = counter2 * 250.0 / 1024.0;
+      }
+     
+      if(!digitalRead(switchFase3) && counter3 < 1024){
+       counter3= counter3+4;
+       setPointFase3 = counter3 * 250.0 / 1024.0;
+      }
+      
+      ISRCounterPrev = ISRCounter;
+ 
    }
-   //delay(100);
-
-
-  //Dependiendo los switch activos el valor se asiganara al setPoint correspoediente
-
-  if(digitalRead(switchFase1)){
-    setPointFase1 = counter * 250.0 / 1024.0;
-  }
-
-  if(digitalRead(switchFase2)){
-    setPointFase2 = counter * 250.0 / 1024.0;
-  }
-
-  if(digitalRead(switchFase3)){
-    setPointFase3 = counter * 250.0 / 1024.0;
-  }
+   
+    if (ISRCounter < ISRCounterPrev){
+      
+      if(!digitalRead(switchFase1) && counter1 > 0){
+       counter1= counter1-4;
+       setPointFase1 = counter1 * 250.0 / 1024.0;
+      }
+      
+       if(!digitalRead(switchFase2) && counter2 > 0){
+       counter2= counter2-4;
+       setPointFase1 = counter2 * 250.0 / 1024.0;
+      }
+ 
+       if(!digitalRead(switchFase3) && counter3 > 0){
+       counter3= counter3-4;
+       setPointFase3 = counter3 * 250.0 / 1024.0;
+      }    
+      
+      ISRCounterPrev = ISRCounter;
+    }
+   
+   Serial.println(ISRCounter);
+   
 
   //------------------------------------------------------------
 
@@ -290,7 +239,6 @@ void setPoint(){
 
 void leerTension(){
 
-  //for(i=0; i<10; i++){
 
     emon1.calcVI(20,2000);         // Calculate all. No.of half wavelengths (crossings), time-out
     emon2.calcVI(20,2000);         // Calculate all. No.of half wavelengths (crossings), time-out
@@ -304,7 +252,7 @@ void leerTension(){
     tenvals2 += Vrms2;
     tenvals3 += Vrms3;
 
- // }
+ 
   
   Fase1 = (tenvals1/10) + ((240-(tenvals1/10))*0.015); // Se le aplico una formula de correcion para un error de 3 volt en 40Vca
   Fase2 = (tenvals2/10) + ((240-(tenvals2/10))*0.015); // Se le aplico una formula de correcion para un error de 3 volt en 40Vca
@@ -325,22 +273,12 @@ void ajuste(){
     if( Fase1 < LimInf1 && Fase1 < 250 && digitalRead(Fcs_1)){
       digitalWrite(enable1, LOW); // Se cambio el estado según configuración del tb6560
       digitalWrite(direccion1, LOW);
-      for(i=0; i<10; i++){
-        digitalWrite(pasos, HIGH);
-        delay(10);
-        digitalWrite(pasos, LOW);
-        delay(10);
-      }
+      
     }
     if( Fase1 > LimSup1 && Fase1 > 0.0 && digitalRead(Fci_1)){  
       digitalWrite(enable1, LOW);
       digitalWrite(direccion1, HIGH);
-      for(i=0; i<10; i++){
-        digitalWrite(pasos, HIGH);
-        delay(10);
-        digitalWrite(pasos, LOW);
-        delay(10);
-      }
+     
     }
 
     digitalWrite(enable1, HIGH);
@@ -359,22 +297,12 @@ void ajuste(){
     if( Fase2 < LimInf2 && Fase2 < 250 && digitalRead(Fcs_2) ){
       digitalWrite(enable2, LOW);
       digitalWrite(direccion2, LOW);
-      for(i=0; i<10; i++){
-        digitalWrite(pasos, HIGH);
-        delay(10);
-        digitalWrite(pasos, LOW);
-        delay(10);
-      }
+
     }
     if( Fase2 > LimSup2 && Fase2 > 0.0 && digitalRead(Fci_2) ){  
       digitalWrite(enable2, LOW);
       digitalWrite(direccion2, HIGH);
-      for(i=0; i<10; i++){
-        digitalWrite(pasos, HIGH);
-        delay(10);
-        digitalWrite(pasos, LOW);
-        delay(10);
-      }
+
     }
 
     digitalWrite(enable2, HIGH);
@@ -393,22 +321,12 @@ void ajuste(){
     if( Fase3 < LimInf3 && Fase3 < 250 && digitalRead(Fcs_3) ){
       digitalWrite(enable3, LOW);
       digitalWrite(direccion3, LOW);
-      for(i=0; i<10; i++){
-        digitalWrite(pasos, HIGH);
-        delay(10);
-        digitalWrite(pasos, LOW);
-        delay(10);
-      }
+
     }
     if( Fase3 > LimSup3 && Fase3 > 0.0 && digitalRead(Fci_3) ){  
       digitalWrite(enable3, LOW);
       digitalWrite(direccion3, HIGH);
-      for(i=0; i<10; i++){
-        digitalWrite(pasos, HIGH);
-        delay(10);
-        digitalWrite(pasos, LOW);
-        delay(10);
-      }
+
     }
 
     digitalWrite(enable3, HIGH);
@@ -438,13 +356,6 @@ void controlManual(){
 
         digitalWrite(enable1, LOW);
         digitalWrite(direccion1, LOW);
-
-       for(i=0; i<30; i++){
-        digitalWrite(pasos, HIGH);
-        //delay(10);
-        digitalWrite(pasos, LOW);
-        //delay(10);
-       }
         
       }
 
@@ -456,13 +367,6 @@ void controlManual(){
 
         digitalWrite(enable2, LOW);
         digitalWrite(direccion2, LOW);
-
-       for(i=0; i<30; i++){
-        digitalWrite(pasos, HIGH);
-        //delay(10);
-        digitalWrite(pasos, LOW);
-        //delay(10);
-       }
         
       }
 
@@ -475,12 +379,6 @@ void controlManual(){
         digitalWrite(enable3, LOW);
         digitalWrite(direccion3, LOW);
 
-       for(i=0; i<30; i++){
-        digitalWrite(pasos, HIGH);
-        //delay(10);
-        digitalWrite(pasos, LOW);
-        //delay(10);
-       }
         
       }
 
@@ -498,12 +396,6 @@ void controlManual(){
         digitalWrite(enable1, LOW);
         digitalWrite(direccion1, HIGH);
 
-       for(i=0; i<30; i++){
-        digitalWrite(pasos, HIGH);
-        //delay(10);
-        digitalWrite(pasos, LOW);
-        //delay(10);
-       }
         
       }
 
@@ -516,12 +408,6 @@ void controlManual(){
         digitalWrite(enable2, LOW);
         digitalWrite(direccion2, HIGH);
 
-       for(i=0; i<30; i++){
-        digitalWrite(pasos, HIGH);
-        //delay(10);
-        digitalWrite(pasos, LOW);
-        //delay(10);
-       }
         
       }
 
@@ -534,12 +420,6 @@ void controlManual(){
         digitalWrite(enable3, LOW);
         digitalWrite(direccion3, HIGH);
 
-       for(i=0; i<30; i++){
-        digitalWrite(pasos, HIGH);
-        //delay(10);
-        digitalWrite(pasos, LOW);
-        //delay(10);
-       }
         
       }
 
@@ -591,26 +471,6 @@ void mostrarPatallaA(){
   lcd.print(Fase3);
   lcd.print("V");
   
-
-  /* Serial.println("AUTOMATICO");
-  Serial.print("Tension Fase1: ");
-  Serial.println(Fase1);
-  Serial.print("Set Point Fase1: ");
-  Serial.println(setPointFase1);
-  Serial.println();
-  
-
-  Serial.print("Tension Fase2: ");
-  Serial.println(Fase2);
-  Serial.print("Set Point Fase2: ");
-  Serial.println(setPointFase2);
-  Serial.println();
-  
-  Serial.print("Tension Fase3: ");
-  Serial.println(Fase3);
-  Serial.print("Set Point Fase3: ");
-  Serial.println(setPointFase3);
-  Serial.println(); */
  
 }
 
@@ -623,15 +483,15 @@ void mostrarPatallaM(){
   lcd.print("LAMyEN");
 
   lcd.setCursor(7,0);
-  lcd.print("Fase1:");
+  lcd.print("FaseR:");
   lcd.print(Fase1);
   lcd.print("V");
   lcd.setCursor(7,1);
-  lcd.print("Fase2:");
+  lcd.print("FaseS:");
   lcd.print(Fase2);
   lcd.print("V");
   lcd.setCursor(7,2);
-  lcd.print("Fase3:");
+  lcd.print("FaseT:");
   lcd.print(Fase3);
   lcd.print("V");
  
@@ -647,13 +507,13 @@ void doEncodeA()
       if (digitalRead(channelPinA) == digitalRead(channelPinB))
       {
          IsCW = 1;
-         if (ISRCounter + 1 <= maxSteps) ISRCounter++;
+         ISRCounter++;
          ISRCounterM++;
       }
       else
       {
          IsCW = 2;
-         if (ISRCounter - 1 > 0) ISRCounter--;
+         ISRCounter--;
          ISRCounterM--;
       }
       timeCounter = millis();
@@ -667,13 +527,13 @@ void doEncodeB()
       if (digitalRead(channelPinA) != digitalRead(channelPinB))
       {
          IsCW = 1;
-         if (ISRCounter + 1 <= maxSteps) ISRCounter++;
+         ISRCounter++;
          ISRCounterM++;
       }
       else
       {
          IsCW = 2;
-         if (ISRCounter - 1 > 0) ISRCounter--;
+         ISRCounter--;
          ISRCounterM--;
       }
       timeCounter = millis();
