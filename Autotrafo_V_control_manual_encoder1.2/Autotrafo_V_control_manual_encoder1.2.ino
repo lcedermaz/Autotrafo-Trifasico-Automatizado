@@ -15,7 +15,7 @@ EnergyMonitor emon3;             // Create an instance 3
   const int timeThreshold = 20;
   long timeCounter = 0;
    
-  const int maxSteps = 528;
+  const int maxSteps = 1024;
   volatile int ISRCounter = 0;
   volatile int ISRCounterM = 0;
   
@@ -27,7 +27,8 @@ EnergyMonitor emon3;             // Create an instance 3
   int ISRCounterPrev;
    
   volatile int IsCW = 1;
-
+  volatile long motor_position ; 
+  
   //----variables para sensor de tension-----
 
   int i = 0;
@@ -53,7 +54,7 @@ EnergyMonitor emon3;             // Create an instance 3
   int switchFase3 = 24;
 
   int switchManAut = 25;
-  
+ 
 //----------------------------------------
 
   int Fcs_1=33;
@@ -109,7 +110,6 @@ void setup() {
 
   //----Configuracion Entradas/Salidas------
   
-
   pinMode(switchFase1, INPUT_PULLUP);
   pinMode(switchFase2, INPUT_PULLUP);
   pinMode(switchFase3, INPUT_PULLUP);
@@ -128,9 +128,9 @@ void setup() {
   digitalWrite(enable2, HIGH);
   digitalWrite(enable3, HIGH);
 
-  digitalWrite(direccion1, HIGH); //  (LOW=ACTIVA , HIGH = DESACTIVA)
-  digitalWrite(direccion2, HIGH);
-  digitalWrite(direccion3, HIGH); 
+  digitalWrite(direccion1, LOW); // PRUEBA TB 6560
+  digitalWrite(direccion2, LOW);
+  digitalWrite(direccion3, LOW); 
   //-----------------------------------
 
   
@@ -179,18 +179,14 @@ void controlManual(){
 
   //-------------------------------------------------------------
 
-  if(ISRCounterM != ISRCounterMPrev){
-    
-    if(IsCW == 1){
-
-      //-------control fase 1 sentido horario--------
+  if(ISRCounter > 0 ){
+      
+    //-------control fase 1 sentido horario--------
 
       if(digitalRead(switchFase1)&& digitalRead(Fcs_1)){
-
         digitalWrite(enable1, LOW); //(LOW=ACTIVA , HIGH = DESACTIVA)
-        digitalWrite(direccion1, LOW);
-        delay(2000);
-        
+        digitalWrite(direccion1, HIGH);
+        delay (1000);   
       }
 
       //---------------------------------------------
@@ -200,9 +196,8 @@ void controlManual(){
       if(digitalRead(switchFase2)&& digitalRead(Fcs_2)){
 
         digitalWrite(enable2, LOW);
-        digitalWrite(direccion2, LOW);
-        delay(2000);
-        
+        digitalWrite(direccion2, HIGH);
+        delay(1000);     
       }
 
       //---------------------------------------------
@@ -212,25 +207,21 @@ void controlManual(){
       if(digitalRead(switchFase3)&& digitalRead(Fcs_3)){
 
         digitalWrite(enable3, LOW);
-        digitalWrite(direccion3, LOW);
-        delay(2000);  
-      }
+        digitalWrite(direccion3, HIGH);
+        delay(1000);  
+        }
+}
 
       //---------------------------------------------
 
-      
-    }
-
-    else{
+    else if (ISRCounter < 0 ){
 
       //-----control fase 1 sentido antihorario------
 
        if(digitalRead(switchFase1)&& digitalRead(Fci_1)){
-
-        digitalWrite(enable1, LOW);
-        digitalWrite(direccion1, HIGH);
-        delay(2000);
-    
+        digitalWrite(enable1, LOW); //(LOW=ACTIVA , HIGH = DESACTIVA)
+        digitalWrite(direccion1, LOW);
+        delay (1000);     
       }
 
       //---------------------------------------------
@@ -238,12 +229,9 @@ void controlManual(){
       //-----control fase 2 sentido antihorario------
 
       if(digitalRead(switchFase2)&& digitalRead(Fci_2)){
-
-        digitalWrite(enable2, LOW);
-        digitalWrite(direccion2, HIGH);
-        delay(2000);
-
-        
+        digitalWrite(enable1, LOW); //(LOW=ACTIVA , HIGH = DESACTIVA)
+        digitalWrite(direccion1, LOW);
+        delay (1000);     
       }
 
       //---------------------------------------------
@@ -251,14 +239,10 @@ void controlManual(){
       //-----control fase 3 sentido antihorario------
 
       if(digitalRead(switchFase3)&& digitalRead(Fci_3)){
-
-        digitalWrite(enable3, LOW);
-        digitalWrite(direccion3, HIGH);
-        delay(2000);
-        
-      }
-
-      
+        digitalWrite(enable1, LOW); //(LOW=ACTIVA , HIGH = DESACTIVA)
+        digitalWrite(direccion1, LOW);
+        delay (1000); 
+          }    
     }
 
     digitalWrite(enable1, HIGH);
@@ -267,10 +251,8 @@ void controlManual(){
     
   }
 
-  ISRCounterMPrev = ISRCounterM;
+  //ISRCounterMPrev = ISRCounterM;
   
-}
-
 
 
 void mostrarPatallaM(){
