@@ -28,13 +28,13 @@
 //---------Tiempos no bloqueantes----------------
 //------------------------------Blink1
 unsigned long previousMillis = 0;
-const long interval = 10 ;
+const long interval = 1000 ;
 //------------------------------blink2
-unsigned long previousMillis1 = 0 ;
-const long interval1 = 1000;
+unsigned long previousMillis2 = 0 ;
+const long interval2 = 1000;
 //------------------------------blink3
-unsigned long previousMillis2 ;
-const long interval2 = 1000 ;
+unsigned long previousMillis3 ;
+const long interval3= 100 ;
 
 //---------Encoder
 
@@ -96,17 +96,17 @@ void loop() {
   }
 
   //--------Motor1-----------
-  if (digitalRead(SW_Fase1) && digitalRead(Fcs_1)) {
+  if (digitalRead(SW_Fase1) && digitalRead(Fcs_1) || digitalRead(Fci_1)) {
     Motor1();
   }
 
   //--------Motor2-----------
-  if (digitalRead(SW_Fase2) && digitalRead(Fcs_2)) {
+  if (digitalRead(SW_Fase2) && digitalRead(Fcs_2) || digitalRead(Fci_2)) {
     Motor2();
   }
 
   //--------Motor3-----------
-  if (digitalRead(SW_Fase3) && digitalRead(Fcs_3)) {
+  if (digitalRead(SW_Fase3) && digitalRead(Fcs_3) || digitalRead(Fci_3)) {
     Motor3();
   }
 
@@ -121,11 +121,11 @@ void Motor1 () {
   unsigned long currentMillis = millis();
 
   // Gestionar el desbordamiento
-  if ((unsigned long)(currentMillis - previousMillis1) >= interval1)
+  if ((unsigned long)(currentMillis - previousMillis) >= interval)
   {
     if (counter != ISRCounter && IsCW == true ) {
       Subir1();
-      previousMillis1 = millis();
+      previousMillis = millis();
     }
 
     if ((unsigned long)(currentMillis - previousMillis2) >= interval2)
@@ -135,10 +135,10 @@ void Motor1 () {
         previousMillis2 = millis();
       }
 
-      if ((unsigned long)(currentMillis - previousMillis) >= interval)
+      if ((unsigned long)(currentMillis - previousMillis3) >= interval3)
       {
         Apagado1 ();
-        previousMillis = millis();
+        previousMillis3 = millis();
       }
 
     }
@@ -170,11 +170,11 @@ void Motor2 () {
   unsigned long currentMillis = millis();
 
   // Gestionar el desbordamiento
-  if ((unsigned long)(currentMillis - previousMillis1) >= interval1)
+  if ((unsigned long)(currentMillis - previousMillis) >= interval)
   {
     if (counter != ISRCounter && IsCW == true ) {
       Subir2();
-      previousMillis1 = millis();
+      previousMillis = millis();
     }
 
     if ((unsigned long)(currentMillis - previousMillis2) >= interval2)
@@ -184,10 +184,10 @@ void Motor2 () {
         previousMillis2 = millis();
       }
 
-      if ((unsigned long)(currentMillis - previousMillis) >= interval)
+      if ((unsigned long)(currentMillis - previousMillis3) >= interval3)
       {
         Apagado2 ();
-        previousMillis = millis();
+        previousMillis3 = millis();
       }
 
     }
@@ -219,11 +219,11 @@ void Motor3 () {
   unsigned long currentMillis = millis();
 
   // Gestionar el desbordamiento
-  if ((unsigned long)(currentMillis - previousMillis1) >= interval1)
+  if ((unsigned long)(currentMillis - previousMillis) >= interval)
   {
     if (counter != ISRCounter && IsCW == true ) {
       Subir3();
-      previousMillis1 = millis();
+      previousMillis = millis();
     }
 
     if ((unsigned long)(currentMillis - previousMillis2) >= interval2)
@@ -233,10 +233,10 @@ void Motor3 () {
         previousMillis2 = millis();
       }
 
-      if ((unsigned long)(currentMillis - previousMillis) >= interval)
+      if ((unsigned long)(currentMillis - previousMillis3) >= interval3)
       {
         Apagado3 ();
-        previousMillis = millis();
+        previousMillis3 = millis();
       }
 
     }
