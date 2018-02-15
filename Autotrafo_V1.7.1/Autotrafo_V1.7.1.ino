@@ -22,8 +22,6 @@ float Vrms3 = 0.0;
 
 //----------------------------------------
 
-float LimSup1 , LimInf1, LimSup2 , LimInf2, LimSup3 , LimInf3; 
-
 float setPointFase1 = 200;
 float setPointFase2 = 200;
 float setPointFase3 = 200;
@@ -98,9 +96,17 @@ const long interval = 1000 ;
 //------------------------------T_1
 unsigned long previousMillis1 = 0;
 const long interval1 = 1000 ;
-//------------------------------T_2
-unsigned long previousMillis2 = 0;
-const long interval2 = 1000 ;
+
+//------------------------------T_2.1-------> Tiempo para el ajuste atuomático 
+unsigned long previousMillis2_1 = 0;
+const long interval2_1 = 1000 ;
+//------------------------------T_2.2
+unsigned long previousMillis2_2 = 0;
+const long interval2_2 = 1000 ;
+//------------------------------T_2.3
+unsigned long previousMillis2_3 = 0;
+const long interval2_3 = 1000 ;
+
 //------------------------------T_3
 unsigned long previousMillis3 = 0;
 const long interval3 = 1000 ;
@@ -194,8 +200,6 @@ void loop() {
     Serial.println(counter2);
   }
 
-  
-  
   if (!digitalRead(switchManAut)) {
 
     unsigned long currentMillis = millis();
@@ -211,11 +215,34 @@ void loop() {
       leerTension();
       previousMillis1 = millis();
     }
-    if ((unsigned long)(currentMillis - previousMillis2) >= interval2)  //----T_2
+    //---------------------------
+
+    if ((unsigned long)(currentMillis - previousMillis2_1) >= interval2_1)  //----T_2.1
     {
-      ajuste();
-      previousMillis2 = millis();
+      ajusteMotor1();
+      previousMillis2_1 = millis();
     }
+    
+    digitalWrite(enable1, HIGH);
+    
+    if ((unsigned long)(currentMillis - previousMillis2_2) >= interval2_2)  //----T_2.2
+    {
+      ajusteMotor2();
+      previousMillis2_2 = millis();
+    }
+    
+    digitalWrite(enable2, HIGH);
+    
+    if ((unsigned long)(currentMillis - previousMillis2_3) >= interval2_3)  //----T_2.3
+    {
+      ajusteMotor3();
+      previousMillis2_3 = millis();
+    }
+    
+    digitalWrite(enable3, HIGH);
+
+    //----------------------------
+
     if ((unsigned long)(currentMillis - previousMillis3) >= interval3)  //----T_3
     {
       mostrarPantalla_A();
@@ -243,9 +270,7 @@ void loop() {
       mostrarPantalla_M();
       previousMillis6 = millis();
     }
-
   }
-
 }
 
 
@@ -308,90 +333,81 @@ void leerTension() {
   Vrms3 = (emon3.Vrms);
 
 
-  Fase1 = Vrms1; 
-  Fase2 = Vrms2 * 0.988; 
+  Fase1 = Vrms1;
+  Fase2 = Vrms2 * 0.988;
   Fase3 = Vrms3 * 0.988;
 
 }
 
-void ajuste() {
+void ajusteMotor1() {
 
   //------ajuste fase 1------------
 
-  LimSup1 = setPointFase1 * 1.004 ; // Limite Superior de seteo
-  LimInf1 = setPointFase1 * 0.996 ; // Limite Inferior de seteo
+  float LimSup1 , LimInf1; // Corresponde a Fase 1
+  LimSup1 = setPointFase1 * 1.01 ; // Limite Superior de seteo
+  LimInf1 = setPointFase1 * 0.99 ; // Limite Inferior de seteo
 
-  if ( (Fase1 < LimInf1) || (Fase1 > LimSup1) ) {
-    if ( (Fase1 < LimInf1) && (Fase1 < 250) && (digitalRead(Fcs_1))) {
+  if ( Fase1 < LimInf1 || Fase1 > LimSup1 ) {
+    if ( Fase1 < LimInf1 && Fase1 < 250 && digitalRead(Fcs_1)) {
       digitalWrite(enable1, LOW); // Se cambio el estado según configuración del tb6560
       digitalWrite(direccion1, LOW);
-      delay(500);
 
     }
-    if ( (Fase1 > LimSup1) && (Fase1 > 0.0) && (digitalRead(Fci_1))) {
+    if ( Fase1 > LimSup1 && Fase1 > 0.0 && digitalRead(Fci_1)) {
       digitalWrite(enable1, LOW);
       digitalWrite(direccion1, HIGH);
-      delay(500);
-
     }
-
-    digitalWrite(enable1, HIGH);
-
+    
   }
+}
+//-------------------------------
 
-  //-------------------------------
+void ajusteMotor2() {
 
   //------ajuste fase 2------------
 
-  LimSup2 = setPointFase2 * 1.004 ; // Limite Superior de seteo
-  LimInf2 = setPointFase2 * 0.996 ; // Limite Inferior de seteo
+  float LimSup2 , LimInf2; // Corresponde a Fase 1
+  LimSup2 = setPointFase2 * 1.01 ; // Limite Superior de seteo
+  LimInf2 = setPointFase2 * 0.99 ; // Limite Inferior de seteo
 
-  if ( (Fase2 < LimInf2) || (Fase2 > LimSup2)  ) {
-    if ( (Fase2 < LimInf2) && (Fase2 < 250) && (digitalRead(Fcs_2)) ) {
+  if ( Fase2 < LimInf2 || Fase2 > LimSup2  ) {
+    if ( Fase2 < LimInf2 && Fase2 < 250 && digitalRead(Fcs_2) ) {
       digitalWrite(enable2, LOW);
       digitalWrite(direccion2, LOW);
-      delay(500);
     }
-    
-    if ( (Fase2 > LimSup2) && (Fase2 > 0.0) && (digitalRead(Fci_2)) ) {
+    if ( Fase2 > LimSup2 && Fase2 > 0.0 && digitalRead(Fci_2) ) {
       digitalWrite(enable2, LOW);
       digitalWrite(direccion2, HIGH);
-      delay(500);
     }
-
-    digitalWrite(enable2, HIGH);
-
+    
   }
+}
+//-------------------------------
 
-  //-------------------------------
+void ajusteMotor3() {
 
   //------ajuste fase 3------------
 
-  LimSup3 = setPointFase3 * 1.004 ; // Limite Superior de seteo
-  LimInf3 = setPointFase3 * 0.996 ; // Limite Inferior de seteo
+  float LimSup3 , LimInf3; // Corresponde a Fase 1
+  LimSup3 = setPointFase3 * 1.01 ; // Limite Superior de seteo
+  LimInf3 = setPointFase3 * 0.99 ; // Limite Inferior de seteo
 
-  if ( (Fase3 < LimInf3) || (Fase3 > LimSup3)  ) {
-    if ( (Fase3 < LimInf3) && (Fase3 < 250) && (digitalRead(Fcs_3)) ) {
+  if ( Fase3 < LimInf3 || Fase3 > LimSup3  ) {
+    if ( Fase3 < LimInf3 && Fase3 < 250 && digitalRead(Fcs_3) ) {
       digitalWrite(enable3, LOW);
       digitalWrite(direccion3, LOW);
-      delay(500);
 
     }
-    if ( (Fase3 > LimSup3) && (Fase3 > 0.0) && (digitalRead(Fci_3)) ) {
+    if ( Fase3 > LimSup3 && Fase3 > 0.0 && digitalRead(Fci_3) ) {
       digitalWrite(enable3, LOW);
       digitalWrite(direccion3, HIGH);
-      delay(500);
-
     }
-
-    digitalWrite(enable3, HIGH);
-
+    
   }
 
   //------------------------------------
 
 }
-
 
 void controlManual() {
 
