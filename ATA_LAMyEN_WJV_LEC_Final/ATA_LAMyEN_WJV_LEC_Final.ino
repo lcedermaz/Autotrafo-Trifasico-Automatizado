@@ -24,9 +24,9 @@ float Vrms3 = 0.0;
 
 float LimSup1 , LimInf1, LimSup2 , LimInf2, LimSup3 , LimInf3; 
 
-float setPointFase1 = 200;
-float setPointFase2 = 200;
-float setPointFase3 = 200;
+float setPointFase1 = 220;
+float setPointFase2 = 220;
+float setPointFase3 = 220;
 float Fase1, Fase2, Fase3;
 
 int lectura1, lectura2, lectura3;
@@ -72,9 +72,9 @@ volatile int ISRCounter = 0;
 volatile int ISRCounterM = 0;
 
 int counter = 0 ;
-int counter1 = 819; // Porque no 0? por el cambio de giro?
-int counter2 = 819;
-int counter3 = 819;
+int counter1 = 908; // Valores predeterminados para que de aproxi 220 V
+int counter2 = 908;
+int counter3 = 908;
 
 int ISRCounterMPrev;
 int ISRCounterPrev;
@@ -118,10 +118,6 @@ const long interval6 = 500 ;
 void setup() {
   //-------------Configuracion LCD-------------
 
-  lcd.init();
-  lcd.begin(20, 4);
-  lcd.clear();
-  lcd.backlight();// Indicamos medidas de LCD
   Wire.begin(); //configura el bus I2C estableciendo arduino como MASTER
 
   //----------------------------------------
@@ -133,7 +129,6 @@ void setup() {
   emon3.voltage(4, 352 , 1.7);  // Voltage: input pin, calibration, phase_shift
 
   //------------------------------------------
-
   //----Configuracion Entradas/Salidas------
 
   pinMode(switchFase1, INPUT_PULLUP);
@@ -170,7 +165,6 @@ void setup() {
   digitalWrite(enable2, HIGH);
   digitalWrite(enable3, HIGH);
 
-
   //-----------------------------------
 
   //----Configuraciones del encoder----
@@ -183,7 +177,45 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(channelPinB), doEncodeB, CHANGE);
 
   //----------------------------------
-
+  
+  //Iniciar Display
+  lcd.clear();
+  lcd.init();
+  lcd.backlight();// Indicamos medidas de LC
+  lcd.begin(20, 4);
+  
+  //Mensaje de Bienvenida
+  lcd.setCursor(0, 0);
+  lcd.print("AUTOTRAFO AUTOMATICO");  
+  lcd.setCursor(4, 1);
+  lcd.print("LA 106 LAMyEN"); 
+  
+  lcd.setCursor(4, 3);
+  lcd.print(" Cargando.");
+  delay(1000);
+  lcd.setCursor(4, 3);
+  lcd.print(" Cargando..");
+  delay(1000);
+  lcd.setCursor(4, 3);
+  lcd.print(" Cargando...");
+  delay(1000);
+  lcd.clear();
+ 
+  lcd.setCursor(0, 0);
+  lcd.print("AUTOTRAFO AUTOMATICO");  
+  lcd.setCursor(4, 1);
+  lcd.print("LA 106 LAMyEN"); 
+  
+  lcd.setCursor(4, 3);
+  lcd.print(" Cargando.");
+  delay(1000);
+  lcd.setCursor(4, 3);
+  lcd.print(" Cargando..");
+  delay(1000);
+  lcd.setCursor(4, 3);
+  lcd.print(" Cargando...");
+  delay(1000);
+  lcd.clear();
 }
 
 void loop() {
@@ -257,7 +289,7 @@ void setPoint() {
 
     if (digitalRead(switchFase1) && counter1 < 1024) {
       counter1 = counter1 + 4;
-      setPointFase1 = counter1 * 250.0 / 1024.0;
+      setPointFase1 = counter1 * 250.0 / 1024.0;      // Valor predeterminado 
     }
 
     if (digitalRead(switchFase2) && counter2 < 1024) {
@@ -408,7 +440,7 @@ void controlManual() {
       if (digitalRead(switchFase1) && digitalRead(Fcs_1)) {
 
         digitalWrite(enable1, LOW);  // LOW = ACTIVA
-        digitalWrite(direccion1, LOW);// LOW = sube? o baja? estromboliko....
+        digitalWrite(direccion1, LOW);// LOW = sube
         delay(500);
       }
 
@@ -494,25 +526,25 @@ void mostrarPantalla_A() {
   lcd.setCursor(7, 0);
   lcd.print("SetP.:");
   lcd.setCursor(7, 1);
-  lcd.print(setPointFase1);
+  lcd.print(setPointFase1,1); // Se le asignó una sola decimal al valor 
   lcd.print("V");
   lcd.setCursor(7, 2);
-  lcd.print(setPointFase2);
+  lcd.print(setPointFase2,1);
   lcd.print("V");
   lcd.setCursor(7, 3);
-  lcd.print(setPointFase3);
+  lcd.print(setPointFase3,1);
   lcd.print("V");
 
   lcd.setCursor(14, 0);
   lcd.print("Fases:");
   lcd.setCursor(14, 1);
-  lcd.print(Fase1);
+  lcd.print(Fase1,1);
   lcd.print("V");
   lcd.setCursor(14, 2);
-  lcd.print(Fase2);
+  lcd.print(Fase2,1);
   lcd.print("V");
   lcd.setCursor(14, 3);
-  lcd.print(Fase3);
+  lcd.print(Fase3,1);
   lcd.print("V");
 
 
@@ -528,15 +560,15 @@ void mostrarPantalla_M() {
 
   lcd.setCursor(7, 0);
   lcd.print("FaseR:");
-  lcd.print(Fase1);
+  lcd.print(Fase1,1);
   lcd.print("V");
   lcd.setCursor(7, 1);
   lcd.print("FaseS:");
-  lcd.print(Fase2);
+  lcd.print(Fase2,1);
   lcd.print("V");
   lcd.setCursor(7, 2);
   lcd.print("FaseT:");
-  lcd.print(Fase3);
+  lcd.print(Fase3,1);
   lcd.print("V");
 
 }
