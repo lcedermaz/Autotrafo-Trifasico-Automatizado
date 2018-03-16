@@ -31,15 +31,15 @@ float Fase1, Fase2, Fase3;
 
 int lectura1, lectura2, lectura3;
 
-int switchFase1 = 22;
+int switchFase1 = 24; //22; Se invirtió ya que no coinciden en el equipo R,S,T
 int switchFase2 = 23;
-int switchFase3 = 24;
+int switchFase3 = 22; //24;
 
 int switchManAut = 25;
 
 int pasos = 26;
 
-int direccion1 = 27;
+int direccion1 = 27;   // Motor  1
 int enable1 = 28;
 
 int direccion2 = 29;
@@ -50,14 +50,14 @@ int enable3 = 32;
 
 //--------------Finales de Carrera------
 
-int Fcs_1 = 33;
-int Fci_1 = 34;
+int Fcs_1 = 37;// 33 ; Se cambiaron de posición ya que no coincidían con los finales de carrera puestos 
+int Fci_1 = 38;// 34 ;
 
 int Fcs_2 = 35;
 int Fci_2 = 36;
 
-int Fcs_3 = 37;
-int Fci_3 = 38;
+int Fcs_3 = 33; //37; 
+int Fci_3 = 34; //38;
 
 //----Configuraciones del encoder----
 
